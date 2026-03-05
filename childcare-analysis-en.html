@@ -1,0 +1,998 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Australian Childcare Market Analysis</title>
+    <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* === RESET & BASE === */
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+        html, body {
+            height: 100%; width: 100%;
+            overflow: hidden;
+            font-family: 'Space Grotesk', sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            scroll-behavior: smooth;
+        }
+
+        /* === THEME VARIABLES === */
+        :root {
+            --bg-primary: #0f0f0f;
+            --bg-secondary: #1a1a1a;
+            --bg-gradient: linear-gradient(135deg, #0f0f0f 0%, #1a1a1a 50%, #0f0f0f 100%);
+            --card-bg: #FF5722;
+            --card-bg-alt: #2979FF;
+            --card-bg-green: #00C853;
+            --card-bg-purple: #7C4DFF;
+            --card-bg-amber: #FFab00;
+            --text-primary: #ffffff;
+            --text-secondary: rgba(255,255,255,0.6);
+            --text-on-card: #0f0f0f;
+            --accent: #FF5722;
+            --accent-blue: #2979FF;
+            --border-subtle: rgba(255,255,255,0.08);
+            --font-heading: 'Archivo Black', sans-serif;
+            --font-body: 'Space Grotesk', sans-serif;
+        }
+
+        /* === VIEWPORT LOCKING === */
+        .slide {
+            width: 100vw;
+            height: 100vh;
+            height: 100dvh;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+            background: var(--bg-gradient);
+            padding: clamp(1.5rem, 4vh, 3rem) clamp(2rem, 5vw, 6rem);
+        }
+
+        /* === TYPOGRAPHY === */
+        h1 {
+            font-family: var(--font-heading);
+            font-size: clamp(2.5rem, 6vw, 5.5rem);
+            line-height: 1.05;
+            letter-spacing: -0.02em;
+            text-transform: uppercase;
+        }
+        h2 {
+            font-family: var(--font-heading);
+            font-size: clamp(1.8rem, 4.5vw, 3.5rem);
+            line-height: 1.1;
+            letter-spacing: -0.01em;
+            text-transform: uppercase;
+        }
+        h3 {
+            font-family: var(--font-heading);
+            font-size: clamp(1.2rem, 2.5vw, 2rem);
+            line-height: 1.2;
+            text-transform: uppercase;
+        }
+        p, li {
+            font-family: var(--font-body);
+            font-size: clamp(1rem, 1.8vw, 1.4rem);
+            line-height: 1.5;
+            color: var(--text-secondary);
+        }
+
+        /* === PROGRESS BAR === */
+        .progress-bar {
+            position: fixed;
+            top: 0; left: 0;
+            height: 3px;
+            background: var(--accent);
+            z-index: 1000;
+            transition: width 0.3s ease;
+            width: 0%;
+        }
+
+        /* === NAV DOTS === */
+        .nav-dots {
+            position: fixed;
+            right: clamp(1rem, 2vw, 2rem);
+            top: 50%;
+            transform: translateY(-50%);
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            z-index: 1000;
+        }
+        .nav-dot {
+            width: 8px; height: 8px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.2);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: none;
+        }
+        .nav-dot.active {
+            background: var(--accent);
+            transform: scale(1.4);
+        }
+        .nav-dot:hover {
+            background: rgba(255,255,255,0.5);
+        }
+
+        /* === SLIDE NUMBER === */
+        .slide-number {
+            position: absolute;
+            top: clamp(1rem, 2vh, 2rem);
+            left: clamp(2rem, 5vw, 6rem);
+            font-family: var(--font-heading);
+            font-size: clamp(0.95rem, 1.5vw, 1.2rem);
+            color: var(--text-secondary);
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+        }
+
+        /* === REVEAL ANIMATIONS === */
+        .reveal {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 0.7s cubic-bezier(0.16, 1, 0.3, 1),
+                        transform 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .reveal.delay-1 { transition-delay: 0.1s; }
+        .reveal.delay-2 { transition-delay: 0.2s; }
+        .reveal.delay-3 { transition-delay: 0.3s; }
+        .reveal.delay-4 { transition-delay: 0.4s; }
+        .reveal.delay-5 { transition-delay: 0.5s; }
+        .reveal.delay-6 { transition-delay: 0.6s; }
+        .visible .reveal {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* === CARDS === */
+        .card {
+            background: var(--card-bg);
+            color: var(--text-on-card);
+            border-radius: 16px;
+            padding: clamp(1.5rem, 3vh, 2.5rem);
+            position: relative;
+            overflow: hidden;
+        }
+        .card-blue { background: var(--card-bg-alt); }
+        .card-green { background: var(--card-bg-green); }
+        .card-purple { background: var(--card-bg-purple); color: #fff; }
+        .card-amber { background: var(--card-bg-amber); }
+        .card-dark {
+            background: rgba(255,255,255,0.05);
+            color: var(--text-primary);
+            border: 1px solid var(--border-subtle);
+        }
+
+        /* === GRID LAYOUTS === */
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: clamp(1rem, 2vw, 2rem);
+            width: 100%;
+            max-width: 1100px;
+        }
+        .grid-3 {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: clamp(0.8rem, 1.5vw, 1.5rem);
+            width: 100%;
+            max-width: 1100px;
+        }
+        .grid-4 {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: clamp(0.6rem, 1vw, 1rem);
+            width: 100%;
+            max-width: 1100px;
+        }
+
+        /* === STAT BLOCKS === */
+        .stat { text-align: center; }
+        .stat-number {
+            font-family: var(--font-heading);
+            font-size: clamp(2rem, 5vw, 4rem);
+            line-height: 1;
+            color: var(--text-primary);
+        }
+        .stat-label {
+            font-size: clamp(0.85rem, 1.3vw, 1.1rem);
+            color: var(--text-secondary);
+            margin-top: 0.3rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+        }
+        .stat-number.accent { color: var(--accent); }
+        .stat-number.blue { color: var(--card-bg-alt); }
+        .stat-number.green { color: var(--card-bg-green); }
+        .stat-number.purple { color: var(--card-bg-purple); }
+
+        /* === TABLES === */
+        .data-table {
+            width: 100%;
+            max-width: 1000px;
+            border-collapse: collapse;
+            font-size: clamp(0.9rem, 1.5vw, 1.2rem);
+        }
+        .data-table th {
+            text-align: left;
+            padding: clamp(0.5rem, 1vh, 0.9rem) clamp(0.6rem, 1.2vw, 1.2rem);
+            color: var(--accent);
+            font-weight: 600;
+            border-bottom: 2px solid var(--accent);
+            font-size: clamp(0.8rem, 1.2vw, 1.05rem);
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+        }
+        .data-table td {
+            padding: clamp(0.5rem, 0.9vh, 0.8rem) clamp(0.6rem, 1.2vw, 1.2rem);
+            border-bottom: 1px solid var(--border-subtle);
+            color: var(--text-secondary);
+        }
+        .data-table tr:last-child td { border-bottom: none; }
+
+        /* === TAGS / BADGES === */
+        .tag {
+            display: inline-block;
+            padding: 0.25em 0.8em;
+            border-radius: 100px;
+            font-size: clamp(0.75rem, 1.1vw, 0.95rem);
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        .tag-red { background: #FF5722; color: #fff; }
+        .tag-green { background: #00C853; color: #0f0f0f; }
+        .tag-blue { background: #2979FF; color: #fff; }
+        .tag-amber { background: #FFab00; color: #0f0f0f; }
+        .tag-gray { background: rgba(255,255,255,0.1); color: var(--text-secondary); }
+
+        /* === COMPARISON BAR === */
+        .compare-bar {
+            height: 8px;
+            border-radius: 4px;
+            background: rgba(255,255,255,0.1);
+            overflow: hidden;
+            margin-top: 0.3rem;
+        }
+        .compare-fill {
+            height: 100%;
+            border-radius: 4px;
+            transition: width 1s cubic-bezier(0.16, 1, 0.3, 1);
+            width: 0%;
+        }
+        .visible .compare-fill { width: var(--fill-width); }
+        .fill-red { background: var(--accent); }
+        .fill-blue { background: var(--card-bg-alt); }
+        .fill-green { background: var(--card-bg-green); }
+        .fill-purple { background: var(--card-bg-purple); }
+
+        /* === SPECIAL LAYOUTS === */
+        .content-wrapper {
+            width: 100%;
+            max-width: 1100px;
+            display: flex;
+            flex-direction: column;
+            gap: clamp(1rem, 2.5vh, 2rem);
+        }
+        .split-layout {
+            display: flex;
+            gap: clamp(2rem, 4vw, 4rem);
+            width: 100%;
+            max-width: 1100px;
+            align-items: flex-start;
+        }
+        .split-layout > * { flex: 1; }
+
+        .subtitle {
+            font-size: clamp(1.05rem, 1.8vw, 1.4rem);
+            color: var(--text-secondary);
+            max-width: 700px;
+        }
+        .divider {
+            width: 60px;
+            height: 3px;
+            background: var(--accent);
+            border-radius: 2px;
+        }
+
+        .highlight { color: var(--accent); }
+        .highlight-blue { color: var(--card-bg-alt); }
+        .highlight-green { color: var(--card-bg-green); }
+
+        /* === VS LAYOUT === */
+        .vs-container {
+            display: grid;
+            grid-template-columns: 1fr auto 1fr;
+            gap: clamp(1rem, 2vw, 2rem);
+            width: 100%;
+            max-width: 1100px;
+            align-items: center;
+        }
+        .vs-divider {
+            font-family: var(--font-heading);
+            font-size: clamp(1.5rem, 3vw, 2.5rem);
+            color: var(--text-secondary);
+            opacity: 0.3;
+        }
+
+        /* === FLOW CHART === */
+        .flow {
+            display: flex;
+            align-items: center;
+            gap: clamp(0.5rem, 1vw, 1rem);
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        .flow-step {
+            background: rgba(255,255,255,0.05);
+            border: 1px solid var(--border-subtle);
+            border-radius: 12px;
+            padding: clamp(0.6rem, 1.2vh, 1rem) clamp(0.8rem, 1.5vw, 1.5rem);
+            font-size: clamp(0.85rem, 1.3vw, 1.05rem);
+            color: var(--text-secondary);
+            text-align: center;
+        }
+        .flow-step.active {
+            background: var(--accent);
+            color: var(--text-on-card);
+            font-weight: 600;
+            border-color: var(--accent);
+        }
+        .flow-arrow {
+            font-size: clamp(0.8rem, 1.5vw, 1.2rem);
+            color: var(--text-secondary);
+            opacity: 0.3;
+        }
+
+        /* === ICON BADGES === */
+        .icon-badge {
+            width: clamp(36px, 5vw, 50px);
+            height: clamp(36px, 5vw, 50px);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: clamp(1rem, 2vw, 1.5rem);
+            margin-bottom: 0.5rem;
+        }
+
+        /* === QUOTE === */
+        .quote {
+            font-family: var(--font-body);
+            font-size: clamp(1.1rem, 2.2vw, 1.8rem);
+            font-weight: 500;
+            line-height: 1.4;
+            color: var(--text-primary);
+            font-style: italic;
+            position: relative;
+            padding-left: clamp(1rem, 2vw, 2rem);
+            border-left: 3px solid var(--accent);
+            max-width: 900px;
+        }
+
+        /* === RESPONSIVE === */
+        @media (max-height: 700px) {
+            .slide { padding: clamp(1rem, 2vh, 1.5rem) clamp(1.5rem, 4vw, 4rem); }
+            h1 { font-size: clamp(1.6rem, 4vw, 3rem); }
+            h2 { font-size: clamp(1.2rem, 3vw, 2rem); }
+        }
+        @media (max-height: 600px) {
+            h1 { font-size: clamp(1.4rem, 3.5vw, 2.5rem); }
+            .grid-3, .grid-4 { gap: 0.5rem; }
+        }
+        @media (max-width: 768px) {
+            .grid-2, .grid-3, .grid-4 { grid-template-columns: 1fr 1fr; }
+            .split-layout { flex-direction: column; }
+            .vs-container { grid-template-columns: 1fr; }
+            .vs-divider { display: none; }
+            .nav-dots { display: none; }
+        }
+        @media (max-width: 480px) {
+            .grid-2, .grid-3, .grid-4 { grid-template-columns: 1fr; }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            .reveal { opacity: 1; transform: none; transition: none; }
+            .compare-fill { transition: none; }
+            html { scroll-behavior: auto; }
+        }
+    </style>
+</head>
+<body>
+    <div class="progress-bar" id="progressBar"></div>
+    <nav class="nav-dots" id="navDots"></nav>
+
+    <!-- === SLIDE 1: TITLE === -->
+    <section class="slide" id="slide-0">
+        <span class="slide-number">Strategic Analysis 2026</span>
+        <div class="content-wrapper" style="align-items: center; text-align: center;">
+            <div class="reveal">
+                <div class="divider" style="margin: 0 auto;"></div>
+            </div>
+            <h1 class="reveal delay-1">One App to<br><span class="highlight">Rule Them All?</span></h1>
+            <p class="subtitle reveal delay-2">A strategic deep-dive into the Australian childcare app market<br>and where the real opportunity lies</p>
+            <div class="reveal delay-3" style="display: flex; gap: 1rem; margin-top: 1rem;">
+                <span class="tag tag-red">Market Analysis</span>
+                <span class="tag tag-blue">Opportunity Assessment</span>
+                <span class="tag tag-green">Strategy</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- === SLIDE 2: MARKET SIZE === -->
+    <section class="slide" id="slide-1">
+        <span class="slide-number">01 / Market Overview</span>
+        <div class="content-wrapper">
+            <h2 class="reveal">The Australian<br>Childcare Market</h2>
+            <div class="grid-4 reveal delay-1">
+                <div class="stat">
+                    <div class="stat-number accent">$23.6B</div>
+                    <div class="stat-label">Industry Revenue 2025</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-number blue">18,018</div>
+                    <div class="stat-label">Approved Services</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-number green">1.45M</div>
+                    <div class="stat-label">Children in Care</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-number purple">$15.4B</div>
+                    <div class="stat-label">Annual CCS Spend</div>
+                </div>
+            </div>
+            <div class="grid-3 reveal delay-2">
+                <div class="card-dark card" style="text-align: center;">
+                    <div style="font-size: clamp(1.2rem, 2vw, 1.8rem); font-weight: 700; color: var(--accent);">~1M</div>
+                    <p style="font-size: clamp(0.85rem, 1.2vw, 1rem);">Families receiving CCS</p>
+                </div>
+                <div class="card-dark card" style="text-align: center;">
+                    <div style="font-size: clamp(1.2rem, 2vw, 1.8rem); font-weight: 700; color: var(--card-bg-alt);">#2</div>
+                    <p style="font-size: clamp(0.85rem, 1.2vw, 1rem);">Most expensive childcare globally (OECD)</p>
+                </div>
+                <div class="card-dark card" style="text-align: center;">
+                    <div style="font-size: clamp(1.2rem, 2vw, 1.8rem); font-weight: 700; color: var(--card-bg-green);">73%</div>
+                    <p style="font-size: clamp(0.85rem, 1.2vw, 1rem);">Dual-income families with children</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- === SLIDE 3: THE FRAGMENTATION PROBLEM === -->
+    <section class="slide" id="slide-2">
+        <span class="slide-number">02 / The Problem</span>
+        <div class="content-wrapper">
+            <h2 class="reveal">Every Centre Uses<br>A <span class="highlight">Different App</span></h2>
+            <p class="subtitle reveal delay-1">The centre picks the software, not the parent. You download whatever app they use.</p>
+            <div class="grid-3 reveal delay-2">
+                <div class="card" style="padding: clamp(1rem, 2vh, 1.5rem);">
+                    <h3 style="color: var(--text-on-card); font-size: clamp(0.95rem, 1.5vw, 1.2rem);">Xplor / QikKids</h3>
+                    <p style="color: rgba(0,0,0,0.7); font-size: clamp(0.85rem, 1.3vw, 1.05rem);">9,200+ services &middot; Largest player<br>PE-backed (Advent International)</p>
+                </div>
+                <div class="card card-blue" style="padding: clamp(1rem, 2vh, 1.5rem);">
+                    <h3 style="color: #fff; font-size: clamp(0.95rem, 1.5vw, 1.2rem);">Storypark</h3>
+                    <p style="color: rgba(255,255,255,0.8); font-size: clamp(0.85rem, 1.3vw, 1.05rem);">6,700+ services<br>Strong on learning documentation</p>
+                </div>
+                <div class="card card-green" style="padding: clamp(1rem, 2vh, 1.5rem);">
+                    <h3 style="color: var(--text-on-card); font-size: clamp(0.95rem, 1.5vw, 1.2rem);">OWNA + Others</h3>
+                    <p style="color: rgba(0,0,0,0.7); font-size: clamp(0.85rem, 1.3vw, 1.05rem);">2,000+ services<br>Kidsoft, HubHello, Xap, Kangarootime...</p>
+                </div>
+            </div>
+            <div class="quote reveal delay-3" style="font-size: clamp(0.95rem, 1.5vw, 1.2rem);">
+                My kid goes to LDC at Centre A (Xplor) and OSHC at Centre B (Storypark). Two apps, two logins, two payment systems.
+            </div>
+        </div>
+    </section>
+
+    <!-- === SLIDE 4: WHY IT WON'T CONSOLIDATE === -->
+    <section class="slide" id="slide-3">
+        <span class="slide-number">03 / Structural Barriers</span>
+        <div class="content-wrapper">
+            <h2 class="reveal">Why "One App" Is<br><span class="highlight">Structurally Blocked</span></h2>
+            <div class="grid-2 reveal delay-1">
+                <div>
+                    <div class="card-dark card" style="margin-bottom: clamp(0.6rem, 1vh, 1rem);">
+                        <h3 style="font-size: clamp(0.9rem, 1.4vw, 1.1rem); margin-bottom: 0.3rem; color: var(--accent);">CCS Government Certification</h3>
+                        <p style="font-size: clamp(0.85rem, 1.2vw, 1rem);">Software must be registered with Dept of Education and tested against CCSS. Significant barrier to entry.</p>
+                    </div>
+                    <div class="card-dark card">
+                        <h3 style="font-size: clamp(0.9rem, 1.4vw, 1.1rem); margin-bottom: 0.3rem; color: var(--card-bg-alt);">High Switching Costs</h3>
+                        <p style="font-size: clamp(0.85rem, 1.2vw, 1rem);">Years of child records, billing history, CCS integration. Centres won't switch unless forced.</p>
+                    </div>
+                </div>
+                <div>
+                    <div class="card-dark card" style="margin-bottom: clamp(0.6rem, 1vh, 1rem);">
+                        <h3 style="font-size: clamp(0.9rem, 1.4vw, 1.1rem); margin-bottom: 0.3rem; color: var(--card-bg-green);">APIs Won't Open</h3>
+                        <p style="font-size: clamp(0.85rem, 1.2vw, 1rem);">Incumbents have zero incentive to let an aggregator commoditize them. No regulation forcing interoperability.</p>
+                    </div>
+                    <div class="card-dark card">
+                        <h3 style="font-size: clamp(0.9rem, 1.4vw, 1.1rem); margin-bottom: 0.3rem; color: var(--card-bg-purple);">PE-Backed Consolidation</h3>
+                        <p style="font-size: clamp(0.85rem, 1.2vw, 1rem);">Xplor acquired QikKids, MyWaitlist, Discover. Procare sold for US$1.75B. Consolidation via M&A, not product.</p>
+                    </div>
+                </div>
+            </div>
+            <p class="reveal delay-2 subtitle" style="text-align: center; font-weight: 600; color: var(--accent); font-size: clamp(0.95rem, 1.5vw, 1.2rem);">So instead of fighting incumbents, what problem CAN we solve?</p>
+        </div>
+    </section>
+
+    <!-- === SLIDE 5: TWO OPPORTUNITIES === -->
+    <section class="slide" id="slide-4">
+        <span class="slide-number">04 / Opportunities</span>
+        <div class="content-wrapper" style="align-items: center;">
+            <h2 class="reveal">Two Viable<br><span class="highlight">Opportunities</span></h2>
+            <div class="vs-container reveal delay-1">
+                <div class="card" style="text-align: center;">
+                    <div style="font-family: var(--font-heading); font-size: clamp(2rem, 4vw, 3.5rem); color: var(--text-on-card);">A</div>
+                    <h3 style="color: var(--text-on-card); font-size: clamp(0.8rem, 1.3vw, 1rem); margin: 0.5rem 0;">Waitlist Platform</h3>
+                    <p style="color: rgba(0,0,0,0.7); font-size: clamp(0.85rem, 1.2vw, 1rem);">Solve the 12-24 month waitlist chaos with a two-sided matching marketplace</p>
+                </div>
+                <div class="vs-divider">VS</div>
+                <div class="card card-blue" style="text-align: center;">
+                    <div style="font-family: var(--font-heading); font-size: clamp(2rem, 4vw, 3.5rem); color: #fff;">B</div>
+                    <h3 style="color: #fff; font-size: clamp(0.8rem, 1.3vw, 1rem); margin: 0.5rem 0;">CCS Optimiser</h3>
+                    <p style="color: rgba(255,255,255,0.8); font-size: clamp(0.85rem, 1.2vw, 1rem);">Help 1M families maximise their Child Care Subsidy with smart financial tools</p>
+                </div>
+            </div>
+            <p class="subtitle reveal delay-2" style="text-align: center;">Neither requires centre software cooperation. Both solve real parent pain.</p>
+        </div>
+    </section>
+
+    <!-- === SLIDE 6: OPP A - THE WAITLIST PROBLEM === -->
+    <section class="slide" id="slide-5">
+        <span class="slide-number">05 / Opportunity A &mdash; Waitlists</span>
+        <div class="content-wrapper">
+            <h2 class="reveal">The Waitlist<br><span class="highlight">Paradox</span></h2>
+            <div class="grid-2 reveal delay-1">
+                <div>
+                    <div class="stat" style="text-align: left; margin-bottom: clamp(0.8rem, 1.5vh, 1.2rem);">
+                        <div class="stat-number accent" style="font-size: clamp(2.5rem, 6vw, 5rem);">~80%</div>
+                        <div class="stat-label">National average occupancy</div>
+                    </div>
+                    <p style="font-size: clamp(0.9rem, 1.4vw, 1.1rem); color: var(--text-secondary);">20% of spots sit empty on any given day &mdash; yet parents wait 12-24 months. This isn't a supply problem. It's an <strong style="color: #fff;">information asymmetry problem</strong>.</p>
+                </div>
+                <div>
+                    <div class="card-dark card" style="font-size: clamp(0.85rem, 1.2vw, 1rem); padding: clamp(0.8rem, 1.5vh, 1.2rem);">
+                        <p style="color: var(--accent); font-weight: 700; margin-bottom: 0.4rem;">The Phantom Waitlist Effect</p>
+                        <p>Parents register at 5-10 centres. A centre sees 50 names but real demand is ~5 families. They can't plan staffing or room openings. Parents can't gauge their real chances.</p>
+                    </div>
+                    <div class="card-dark card" style="font-size: clamp(0.85rem, 1.2vw, 1rem); margin-top: clamp(0.5rem, 1vh, 0.8rem); padding: clamp(0.8rem, 1.5vh, 1.2rem);">
+                        <p style="color: var(--card-bg-alt); font-weight: 700; margin-bottom: 0.4rem;">Wait Times by City</p>
+                        <p>Sydney: 12-24mo &middot; Melbourne: 10-18mo &middot; Perth: 18mo+ &middot; Infant (0-2): worst of all</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- === SLIDE 7: OPP A - COMPETITIVE LANDSCAPE === -->
+    <section class="slide" id="slide-6">
+        <span class="slide-number">06 / Opportunity A &mdash; Competition</span>
+        <div class="content-wrapper">
+            <h2 class="reveal">A's Competitive<br><span class="highlight">Landscape</span></h2>
+            <table class="data-table reveal delay-1">
+                <thead>
+                    <tr>
+                        <th>Player</th>
+                        <th>What They Do</th>
+                        <th>Gap</th>
+                        <th>Threat</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td style="color: #fff; font-weight: 600;">KindiCare</td>
+                        <td>Search/compare (100K users, Domain-backed)</td>
+                        <td>No waitlist management</td>
+                        <td><span class="tag tag-red">High</span></td>
+                    </tr>
+                    <tr>
+                        <td style="color: #fff; font-weight: 600;">Xplor / MyWaitlist</td>
+                        <td>Centre-side waitlist CRM (acquired 2021)</td>
+                        <td>Not parent-facing</td>
+                        <td><span class="tag tag-red">High</span></td>
+                    </tr>
+                    <tr>
+                        <td style="color: #fff; font-weight: 600;">ChildcareNow</td>
+                        <td>Casual/extra booking for enrolled families</td>
+                        <td>Not initial placement</td>
+                        <td><span class="tag tag-amber">Medium</span></td>
+                    </tr>
+                    <tr>
+                        <td style="color: #fff; font-weight: 600;">Toddle</td>
+                        <td>Search 14K+ centres</td>
+                        <td>Email enquiry only</td>
+                        <td><span class="tag tag-green">Low</span></td>
+                    </tr>
+                </tbody>
+            </table>
+            <div class="card-dark card reveal delay-2" style="max-width: 1000px; padding: clamp(0.8rem, 1.5vh, 1.2rem);">
+                <p style="font-size: clamp(0.85rem, 1.3vw, 1.05rem);"><span style="color: var(--accent); font-weight: 700;">Key risk:</span> KindiCare (parent side) + Xplor/MyWaitlist (centre side) could build this themselves. You'd be squeezed from both directions.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- === SLIDE 8: OPP A - VERDICT === -->
+    <section class="slide" id="slide-7">
+        <span class="slide-number">07 / Opportunity A &mdash; Verdict</span>
+        <div class="content-wrapper" style="align-items: center; text-align: center;">
+            <h2 class="reveal">Opportunity A<br><span class="highlight">Assessment</span></h2>
+            <div class="grid-2 reveal delay-1" style="max-width: 900px;">
+                <div>
+                    <h3 style="color: var(--card-bg-green); font-size: clamp(0.9rem, 1.3vw, 1.05rem); margin-bottom: 0.6rem;">Strengths</h3>
+                    <div class="card-dark card" style="text-align: left; font-size: clamp(0.85rem, 1.2vw, 1rem); padding: clamp(0.8rem, 1.5vh, 1.2rem);">
+                        <p style="margin-bottom: 0.3rem;">+ Real, ACCC-documented problem</p>
+                        <p style="margin-bottom: 0.3rem;">+ 80% occupancy paradox is solvable</p>
+                        <p style="margin-bottom: 0.3rem;">+ US comparables raised $30M+ (BridgeCare, Upwards)</p>
+                        <p>+ Government policy tailwinds (3-Day Guarantee)</p>
+                    </div>
+                </div>
+                <div>
+                    <h3 style="color: var(--accent); font-size: clamp(0.9rem, 1.3vw, 1.05rem); margin-bottom: 0.6rem;">Weaknesses</h3>
+                    <div class="card-dark card" style="text-align: left; font-size: clamp(0.85rem, 1.2vw, 1rem); padding: clamp(0.8rem, 1.5vh, 1.2rem);">
+                        <p style="margin-bottom: 0.3rem;">- One-time engagement (every 2-5 years)</p>
+                        <p style="margin-bottom: 0.3rem;">- Cold-start / two-sided marketplace problem</p>
+                        <p style="margin-bottom: 0.3rem;">- KindiCare + Xplor squeeze from both sides</p>
+                        <p>- Needs centre buy-in (dependency)</p>
+                    </div>
+                </div>
+            </div>
+            <div class="reveal delay-2" style="margin-top: clamp(0.8rem, 1.5vh, 1.2rem);">
+                <div style="display: flex; align-items: center; gap: 1rem; justify-content: center;">
+                    <span style="font-family: var(--font-heading); font-size: clamp(1.5rem, 3vw, 2.5rem); color: var(--card-bg-amber);">5/10</span>
+                    <span style="color: var(--text-secondary); font-size: clamp(0.9rem, 1.3vw, 1.05rem);">Attractiveness Score</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- === SLIDE 9: OPP B - THE CCS PROBLEM === -->
+    <section class="slide" id="slide-8">
+        <span class="slide-number">08 / Opportunity B &mdash; CCS</span>
+        <div class="content-wrapper">
+            <h2 class="reveal">The CCS System Is<br><span class="highlight-blue">Complex & Growing</span></h2>
+            <div class="grid-2 reveal delay-1">
+                <div>
+                    <div class="card card-blue" style="padding: clamp(0.8rem, 1.5vh, 1.2rem); font-size: clamp(0.85rem, 1.2vw, 1rem);">
+                        <p style="color: #fff; font-weight: 700; margin-bottom: 0.5rem;">What families must navigate:</p>
+                        <p style="color: rgba(255,255,255,0.85); margin-bottom: 0.2rem;">&bull; Income test (ATI, not taxable income)</p>
+                        <p style="color: rgba(255,255,255,0.85); margin-bottom: 0.2rem;">&bull; Salary sacrifice DOESN'T reduce ATI</p>
+                        <p style="color: rgba(255,255,255,0.85); margin-bottom: 0.2rem;">&bull; Activity test / 3-Day Guarantee (new Jan 2026)</p>
+                        <p style="color: rgba(255,255,255,0.85); margin-bottom: 0.2rem;">&bull; Multi-child higher rate (up to 95%)</p>
+                        <p style="color: rgba(255,255,255,0.85); margin-bottom: 0.2rem;">&bull; Hourly rate caps ($14.63/hr)</p>
+                        <p style="color: rgba(255,255,255,0.85);">&bull; 5% withholding + annual reconciliation</p>
+                    </div>
+                </div>
+                <div>
+                    <div class="grid-2" style="gap: clamp(0.5rem, 1vh, 0.8rem);">
+                        <div class="card-dark card" style="text-align: center; padding: clamp(0.6rem, 1vh, 1rem);">
+                            <div style="font-size: clamp(1.2rem, 2.5vw, 2rem); font-weight: 700; color: var(--accent);">240K+</div>
+                            <p style="font-size: clamp(0.75rem, 1.1vw, 0.9rem);">Families missed income confirmation</p>
+                        </div>
+                        <div class="card-dark card" style="text-align: center; padding: clamp(0.6rem, 1vh, 1rem);">
+                            <div style="font-size: clamp(1.2rem, 2.5vw, 2rem); font-weight: 700; color: var(--card-bg-alt);">13%</div>
+                            <p style="font-size: clamp(0.75rem, 1.1vw, 0.9rem);">Families incur debt at reconciliation</p>
+                        </div>
+                        <div class="card-dark card" style="text-align: center; padding: clamp(0.6rem, 1vh, 1rem);">
+                            <div style="font-size: clamp(1.2rem, 2.5vw, 2rem); font-weight: 700; color: var(--card-bg-green);">$0</div>
+                            <p style="font-size: clamp(0.75rem, 1.1vw, 0.9rem);">Dedicated CCS optimisation tools exist</p>
+                        </div>
+                        <div class="card-dark card" style="text-align: center; padding: clamp(0.6rem, 1vh, 1rem);">
+                            <div style="font-size: clamp(1.2rem, 2.5vw, 2rem); font-weight: 700; color: var(--card-bg-purple);">87%</div>
+                            <p style="font-size: clamp(0.75rem, 1.1vw, 0.9rem);">Get top-up (were underpaid all year)</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- === SLIDE 10: OPP B - EMPTY MARKET === -->
+    <section class="slide" id="slide-9">
+        <span class="slide-number">09 / Opportunity B &mdash; Market Gap</span>
+        <div class="content-wrapper">
+            <h2 class="reveal">Nobody Is<br><span class="highlight-blue">Doing This</span></h2>
+            <table class="data-table reveal delay-1">
+                <thead>
+                    <tr>
+                        <th>Feature</th>
+                        <th>Existing Calculators</th>
+                        <th>Our Opportunity</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td style="color: #fff;">Basic CCS % estimate</td>
+                        <td><span class="tag tag-green">Yes</span></td>
+                        <td style="color: var(--text-secondary);">Table stakes</td>
+                    </tr>
+                    <tr>
+                        <td style="color: #fff;">Income scenario modelling</td>
+                        <td><span class="tag tag-red">No</span></td>
+                        <td style="color: var(--card-bg-green);">"What if I earn $5K less?"</td>
+                    </tr>
+                    <tr>
+                        <td style="color: #fff;">Super contribution vs CCS trade-off</td>
+                        <td><span class="tag tag-red">No</span></td>
+                        <td style="color: var(--card-bg-green);">Could save thousands/year</td>
+                    </tr>
+                    <tr>
+                        <td style="color: #fff;">Reconciliation prediction</td>
+                        <td><span class="tag tag-red">No</span></td>
+                        <td style="color: var(--card-bg-green);">Avoid surprise debt</td>
+                    </tr>
+                    <tr>
+                        <td style="color: #fff;">Threshold alerts</td>
+                        <td><span class="tag tag-red">No</span></td>
+                        <td style="color: var(--card-bg-green);">Near a CCS tier drop? We alert you</td>
+                    </tr>
+                    <tr>
+                        <td style="color: #fff;">Multi-child optimisation</td>
+                        <td><span class="tag tag-red">No</span></td>
+                        <td style="color: var(--card-bg-green);">Up to 95% on 2nd child</td>
+                    </tr>
+                </tbody>
+            </table>
+            <div class="card card-blue reveal delay-2" style="max-width: 1000px; padding: clamp(0.8rem, 1.2vh, 1rem); text-align: center;">
+                <p style="color: #fff; font-weight: 600; font-size: clamp(0.9rem, 1.4vw, 1.1rem);">$15.4B flows through CCS annually. 1M families navigate it. Zero intelligent tools exist.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- === SLIDE 11: OPP B - THE MONEY STORY === -->
+    <section class="slide" id="slide-10">
+        <span class="slide-number">10 / Opportunity B &mdash; Value Proposition</span>
+        <div class="content-wrapper">
+            <h2 class="reveal">The <span class="highlight-blue">Money</span> Story</h2>
+            <div class="grid-3 reveal delay-1">
+                <div class="card card-blue" style="padding: clamp(0.8rem, 1.5vh, 1.2rem);">
+                    <h3 style="color: #fff; font-size: clamp(0.9rem, 1.3vw, 1.05rem);">Super Optimisation</h3>
+                    <p style="color: rgba(255,255,255,0.85); font-size: clamp(0.8rem, 1.15vw, 0.95rem); margin-top: 0.3rem;">Family at $90K ATI: contribute $5K extra to super &rarr; ATI drops to $85K &rarr; CCS jumps from 89% to 90%</p>
+                    <div style="font-family: var(--font-heading); font-size: clamp(1.2rem, 2vw, 1.8rem); color: #fff; margin-top: 0.5rem;">$1,000+/yr</div>
+                    <p style="color: rgba(255,255,255,0.6); font-size: clamp(0.75rem, 1vw, 0.85rem);">saved from one action</p>
+                </div>
+                <div class="card card-green" style="padding: clamp(0.8rem, 1.5vh, 1.2rem);">
+                    <h3 style="color: var(--text-on-card); font-size: clamp(0.9rem, 1.3vw, 1.05rem);">Debt Avoidance</h3>
+                    <p style="color: rgba(0,0,0,0.7); font-size: clamp(0.8rem, 1.15vw, 0.95rem); margin-top: 0.3rem;">Underestimate income by $20K &rarr; ~$1,200 debt at reconciliation + 20% ongoing withholding</p>
+                    <div style="font-family: var(--font-heading); font-size: clamp(1.2rem, 2vw, 1.8rem); color: var(--text-on-card); margin-top: 0.5rem;">$1,200</div>
+                    <p style="color: rgba(0,0,0,0.5); font-size: clamp(0.75rem, 1vw, 0.85rem);">debt avoided with mid-year alert</p>
+                </div>
+                <div class="card card-purple" style="padding: clamp(0.8rem, 1.5vh, 1.2rem);">
+                    <h3 style="color: #fff; font-size: clamp(0.9rem, 1.3vw, 1.05rem);">Multi-Child Rate</h3>
+                    <p style="color: rgba(255,255,255,0.85); font-size: clamp(0.8rem, 1.15vw, 0.95rem); margin-top: 0.3rem;">2 kids under 6, earning $120K: 2nd child eligible for up to 95% CCS. Many families don't know this.</p>
+                    <div style="font-family: var(--font-heading); font-size: clamp(1.2rem, 2vw, 1.8rem); color: #fff; margin-top: 0.5rem;">+12%</div>
+                    <p style="color: rgba(255,255,255,0.6); font-size: clamp(0.75rem, 1vw, 0.85rem);">higher subsidy on 2nd child</p>
+                </div>
+            </div>
+            <div class="reveal delay-2" style="text-align: center;">
+                <p style="font-size: clamp(0.95rem, 1.5vw, 1.2rem); color: var(--text-primary); font-weight: 600;">If the tool saves $500-2,000/yr, a $90/yr subscription is a <span class="highlight-blue">32:1 ROI</span></p>
+            </div>
+        </div>
+    </section>
+
+    <!-- === SLIDE 12: HEAD TO HEAD === -->
+    <section class="slide" id="slide-11">
+        <span class="slide-number">11 / Comparison</span>
+        <div class="content-wrapper">
+            <h2 class="reveal"><span class="highlight">A</span> vs <span class="highlight-blue">B</span><br>Head to Head</h2>
+            <div style="width: 100%; max-width: 1000px;" class="reveal delay-1">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: clamp(0.4rem, 0.8vh, 0.6rem);">
+                    <span style="font-size: clamp(0.85rem, 1.2vw, 1rem); color: var(--text-secondary);">Competition Level</span>
+                    <div style="display: flex; gap: 0.5rem; align-items: center;">
+                        <span class="tag tag-red" style="font-size: 0.75rem;">A: Crowded</span>
+                        <span class="tag tag-blue" style="font-size: 0.75rem;">B: Empty</span>
+                    </div>
+                </div>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: clamp(0.4rem, 0.8vh, 0.6rem);">
+                    <span style="font-size: clamp(0.85rem, 1.2vw, 1rem); color: var(--text-secondary);">3rd Party Dependency</span>
+                    <div style="display: flex; gap: 0.5rem; align-items: center;">
+                        <span class="tag tag-red" style="font-size: 0.75rem;">A: Centre buy-in needed</span>
+                        <span class="tag tag-blue" style="font-size: 0.75rem;">B: None</span>
+                    </div>
+                </div>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: clamp(0.4rem, 0.8vh, 0.6rem);">
+                    <span style="font-size: clamp(0.85rem, 1.2vw, 1rem); color: var(--text-secondary);">Engagement Frequency</span>
+                    <div style="display: flex; gap: 0.5rem; align-items: center;">
+                        <span class="tag tag-red" style="font-size: 0.75rem;">A: Once / 2-5 yrs</span>
+                        <span class="tag tag-blue" style="font-size: 0.75rem;">B: Multiple / year</span>
+                    </div>
+                </div>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: clamp(0.4rem, 0.8vh, 0.6rem);">
+                    <span style="font-size: clamp(0.85rem, 1.2vw, 1rem); color: var(--text-secondary);">Cold Start Problem</span>
+                    <div style="display: flex; gap: 0.5rem; align-items: center;">
+                        <span class="tag tag-red" style="font-size: 0.75rem;">A: Two-sided marketplace</span>
+                        <span class="tag tag-blue" style="font-size: 0.75rem;">B: Single-sided</span>
+                    </div>
+                </div>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: clamp(0.4rem, 0.8vh, 0.6rem);">
+                    <span style="font-size: clamp(0.85rem, 1.2vw, 1rem); color: var(--text-secondary);">Time to MVP</span>
+                    <div style="display: flex; gap: 0.5rem; align-items: center;">
+                        <span class="tag tag-red" style="font-size: 0.75rem;">A: 3-6 months</span>
+                        <span class="tag tag-blue" style="font-size: 0.75rem;">B: 4-8 weeks</span>
+                    </div>
+                </div>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: clamp(0.4rem, 0.8vh, 0.6rem);">
+                    <span style="font-size: clamp(0.85rem, 1.2vw, 1rem); color: var(--text-secondary);">Realistic TAM</span>
+                    <div style="display: flex; gap: 0.5rem; align-items: center;">
+                        <span class="tag tag-red" style="font-size: 0.75rem;">A: $2-5M ARR</span>
+                        <span class="tag tag-blue" style="font-size: 0.75rem;">B: $8-18M ARR</span>
+                    </div>
+                </div>
+            </div>
+            <div class="reveal delay-2" style="display: flex; gap: 2rem; align-items: center; justify-content: center; margin-top: clamp(0.5rem, 1vh, 1rem);">
+                <div style="text-align: center;">
+                    <div style="font-family: var(--font-heading); font-size: clamp(1.5rem, 3vw, 2.5rem); color: var(--card-bg-amber);">5/10</div>
+                    <div style="font-size: clamp(0.8rem, 1.1vw, 0.95rem); color: var(--text-secondary);">Waitlists</div>
+                </div>
+                <div style="font-family: var(--font-heading); font-size: clamp(1rem, 2vw, 1.5rem); color: var(--text-secondary); opacity: 0.3;">vs</div>
+                <div style="text-align: center;">
+                    <div style="font-family: var(--font-heading); font-size: clamp(1.5rem, 3vw, 2.5rem); color: var(--card-bg-green);">8.5/10</div>
+                    <div style="font-size: clamp(0.8rem, 1.1vw, 0.95rem); color: var(--text-secondary);">CCS Optimiser</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- === SLIDE 13: EXPANSION PATH === -->
+    <section class="slide" id="slide-12">
+        <span class="slide-number">12 / Expansion Path</span>
+        <div class="content-wrapper" style="align-items: center;">
+            <h2 class="reveal">From CCS Tool to<br><span class="highlight-blue">Family Finance Platform</span></h2>
+            <div class="flow reveal delay-1">
+                <div class="flow-step active">
+                    <strong>Phase 1</strong><br>
+                    <span style="font-size: clamp(0.8rem, 1.1vw, 0.95rem);">CCS Optimiser</span>
+                </div>
+                <div class="flow-arrow">&rarr;</div>
+                <div class="flow-step">
+                    <strong>Phase 2</strong><br>
+                    <span style="font-size: clamp(0.8rem, 1.1vw, 0.95rem);">Cost Tracker</span>
+                </div>
+                <div class="flow-arrow">&rarr;</div>
+                <div class="flow-step">
+                    <strong>Phase 3</strong><br>
+                    <span style="font-size: clamp(0.8rem, 1.1vw, 0.95rem);">FTB A & B Optimiser</span>
+                </div>
+                <div class="flow-arrow">&rarr;</div>
+                <div class="flow-step">
+                    <strong>Phase 4</strong><br>
+                    <span style="font-size: clamp(0.8rem, 1.1vw, 0.95rem);">TurboTax for Parents</span>
+                </div>
+            </div>
+            <div class="grid-2 reveal delay-2" style="max-width: 900px; margin-top: clamp(0.5rem, 1vh, 1rem);">
+                <div class="card-dark card" style="padding: clamp(0.8rem, 1.2vh, 1rem);">
+                    <h3 style="font-size: clamp(0.85rem, 1.3vw, 1.05rem); color: var(--card-bg-alt); margin-bottom: 0.3rem;">TAM Expansion</h3>
+                    <p style="font-size: clamp(0.8rem, 1.15vw, 0.95rem);">Phase 1: 1M CCS families<br>Phase 3: 2M+ FTB families<br>Phase 4: 3M+ all families with children</p>
+                </div>
+                <div class="card-dark card" style="padding: clamp(0.8rem, 1.2vh, 1rem);">
+                    <h3 style="font-size: clamp(0.85rem, 1.3vw, 1.05rem); color: var(--card-bg-green); margin-bottom: 0.3rem;">Revenue Growth</h3>
+                    <p style="font-size: clamp(0.8rem, 1.15vw, 0.95rem);">Phase 1: $8M ARR (CCS subscriptions)<br>Phase 3: $20M+ ARR<br>Phase 4: $50M+ ARR (tax agent partnerships)</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- === SLIDE 14: RECOMMENDATION === -->
+    <section class="slide" id="slide-13">
+        <span class="slide-number">13 / Recommendation</span>
+        <div class="content-wrapper" style="align-items: center; text-align: center;">
+            <div class="reveal">
+                <div class="divider" style="margin: 0 auto;"></div>
+            </div>
+            <h1 class="reveal delay-1" style="font-size: clamp(1.8rem, 4vw, 3.5rem);">Build the<br><span style="color: var(--card-bg-alt);">CCS Optimiser</span></h1>
+            <div class="grid-3 reveal delay-2" style="max-width: 800px;">
+                <div style="text-align: center;">
+                    <div style="font-size: clamp(1.5rem, 3vw, 2.5rem);">0</div>
+                    <p style="font-size: clamp(0.8rem, 1.1vw, 0.95rem);">Competitors</p>
+                </div>
+                <div style="text-align: center;">
+                    <div style="font-size: clamp(1.5rem, 3vw, 2.5rem); color: var(--card-bg-alt);">1M</div>
+                    <p style="font-size: clamp(0.8rem, 1.1vw, 0.95rem);">Target families</p>
+                </div>
+                <div style="text-align: center;">
+                    <div style="font-size: clamp(1.5rem, 3vw, 2.5rem); color: var(--card-bg-green);">$15.4B</div>
+                    <p style="font-size: clamp(0.8rem, 1.1vw, 0.95rem);">Annual CCS flowing through</p>
+                </div>
+            </div>
+            <p class="subtitle reveal delay-3" style="max-width: 700px;">No dependency on centres. No API battles. No cold-start problem.<br>Just a tool that saves families real money, starting in 4-8 weeks.</p>
+            <div class="reveal delay-4" style="margin-top: clamp(0.5rem, 1vh, 1rem);">
+                <span class="tag tag-blue" style="font-size: clamp(0.85rem, 1.2vw, 1rem); padding: 0.4em 1.2em;">Next Step: Scope the MVP</span>
+            </div>
+        </div>
+    </section>
+
+    <script>
+        /* === SLIDE PRESENTATION CONTROLLER === */
+        class SlidePresentation {
+            constructor() {
+                this.slides = document.querySelectorAll('.slide');
+                this.currentSlide = 0;
+                this.isAnimating = false;
+                this.touchStartY = 0;
+                this.touchStartX = 0;
+                this.init();
+            }
+            init() {
+                this.createNavDots();
+                this.updateProgress();
+                this.showSlide(0);
+                document.addEventListener('keydown', (e) => this.handleKey(e));
+                document.addEventListener('wheel', (e) => this.handleWheel(e), { passive: false });
+                document.addEventListener('touchstart', (e) => this.handleTouchStart(e), { passive: true });
+                document.addEventListener('touchend', (e) => this.handleTouchEnd(e), { passive: true });
+            }
+            createNavDots() {
+                const nav = document.getElementById('navDots');
+                this.slides.forEach((_, i) => {
+                    const dot = document.createElement('button');
+                    dot.className = 'nav-dot' + (i === 0 ? ' active' : '');
+                    dot.setAttribute('aria-label', `Go to slide ${i + 1}`);
+                    dot.addEventListener('click', () => this.goToSlide(i));
+                    nav.appendChild(dot);
+                });
+            }
+            showSlide(index) {
+                this.slides.forEach((slide, i) => {
+                    slide.style.display = i === index ? 'flex' : 'none';
+                    if (i === index) {
+                        slide.classList.add('visible');
+                    } else {
+                        slide.classList.remove('visible');
+                    }
+                });
+                document.querySelectorAll('.nav-dot').forEach((dot, i) => {
+                    dot.classList.toggle('active', i === index);
+                });
+                this.updateProgress();
+            }
+            goToSlide(index) {
+                if (index < 0 || index >= this.slides.length || this.isAnimating) return;
+                this.isAnimating = true;
+                this.currentSlide = index;
+                this.showSlide(index);
+                setTimeout(() => { this.isAnimating = false; }, 400);
+            }
+            next() { this.goToSlide(this.currentSlide + 1); }
+            prev() { this.goToSlide(this.currentSlide - 1); }
+            handleKey(e) {
+                switch (e.key) {
+                    case 'ArrowRight': case 'ArrowDown': case ' ': case 'PageDown':
+                        e.preventDefault(); this.next(); break;
+                    case 'ArrowLeft': case 'ArrowUp': case 'PageUp':
+                        e.preventDefault(); this.prev(); break;
+                    case 'Home': e.preventDefault(); this.goToSlide(0); break;
+                    case 'End': e.preventDefault(); this.goToSlide(this.slides.length - 1); break;
+                }
+            }
+            handleWheel(e) {
+                e.preventDefault();
+                if (this.isAnimating) return;
+                if (e.deltaY > 30) this.next();
+                else if (e.deltaY < -30) this.prev();
+            }
+            handleTouchStart(e) {
+                this.touchStartY = e.touches[0].clientY;
+                this.touchStartX = e.touches[0].clientX;
+            }
+            handleTouchEnd(e) {
+                const deltaY = this.touchStartY - e.changedTouches[0].clientY;
+                const deltaX = this.touchStartX - e.changedTouches[0].clientX;
+                if (Math.abs(deltaY) > Math.abs(deltaX) && Math.abs(deltaY) > 50) {
+                    deltaY > 0 ? this.next() : this.prev();
+                } else if (Math.abs(deltaX) > 50) {
+                    deltaX > 0 ? this.next() : this.prev();
+                }
+            }
+            updateProgress() {
+                const progress = ((this.currentSlide) / (this.slides.length - 1)) * 100;
+                document.getElementById('progressBar').style.width = progress + '%';
+            }
+        }
+        const presentation = new SlidePresentation();
+    </script>
+</body>
+</html>
